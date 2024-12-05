@@ -14,26 +14,24 @@ import { UserEntity } from './user.entity';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { v4 as uuidv4 } from 'uuid';
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
-  private users: UserEntity[] = [];
-
+  constructor(private readonly usersServices: UsersService) {}
   @Get()
   find(): UserEntity[] {
-    return this.users;
+    return this.usersServices.findUsers();
   }
 
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string): UserEntity {
-    return this.users.find((user) => user.id === id);
+    return this.usersServices.findUserById(id);
   }
 
   @Post()
   create(@Body() createUserDto: CreateUserDto): UserEntity {
-    const newUser: UserEntity = { id: uuidv4(), ...createUserDto };
-    this.users.push(newUser);
-    return newUser;
+    return this.usersServices.createUser(createUserDto);
   }
 
   @Patch(':id')
@@ -41,16 +39,12 @@ export class UsersController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    const index = this.users.findIndex((user) => user.id === id);
-
-    this.users[index] = { ...this.users[index], ...updateUserDto };
-
-    return this.users[index];
+    return this.usersServices.updateUser(id, updateUserDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id', ParseUUIDPipe) id: string) {
-    this.users = this.users.filter((user) => user.id !== id);
+    this.usersServices.deleteUser(id);
   }
 }
