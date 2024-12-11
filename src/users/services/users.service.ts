@@ -1,6 +1,7 @@
 import { Model } from 'mongoose';
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { User } from '../interfaces/user.interface';
+import { CreateUserDto } from '../dtos/create-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -9,8 +10,9 @@ export class UsersService {
     private userModel: Model<User>,
   ) {}
 
-  async findAll(): Promise<User[]> {
-    return await this.userModel.find();
+  async findAll(): Promise<{ data: User[]; count: number; status: number }> {
+    const users = await this.userModel.find().select('firstname lastname');
+    return { data: users, count: users.length, status: 200 };
   }
 
   async findOne(id: string): Promise<User> {
@@ -20,5 +22,9 @@ export class UsersService {
       throw new NotFoundException();
     }
     return user;
+  }
+
+  async createUser(createUserDto: CreateUserDto): Promise<User> {
+    return await this.userModel.create(createUserDto);
   }
 }
