@@ -1,4 +1,4 @@
-import { IsNumber, IsString } from 'class-validator';
+import { IsIn, IsNumber, IsString } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
@@ -9,4 +9,8 @@ export class CreateUserDto {
 
   @IsNumber()
   age: number;
+
+  @IsString()
+  @IsIn(['admin', 'manager'])
+  role: string;
 }
